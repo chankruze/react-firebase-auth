@@ -7,6 +7,7 @@ Copyright (c) Geekofia 2020 and beyond
 
 import { useRef, useState } from "react";
 import { Form, Button, Card, Alert } from "react-bootstrap";
+import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Signup = () => {
@@ -15,10 +16,11 @@ const Signup = () => {
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
   // methods from useAuth
-  const { signup, currentUser } = useAuth();
+  const { signup } = useAuth();
   // states
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,10 +36,13 @@ const Signup = () => {
       // set loading to true
       setLoading(true);
       await signup(emailRef.current.value, passwordRef.current.value);
+      history.push({
+        pathname: "/",
+      });
     } catch (error) {
       // set error (failed account creation)
-      setError(`Failed account creation: ${error.message}`);
-      console.error(error);
+      setError(error.message);
+      // console.error(error);
     }
 
     // set loading to true
@@ -49,12 +54,16 @@ const Signup = () => {
       <Card>
         <Card.Body>
           <h2 className="text-center mb-4">Sign Up</h2>
-          {currentUser && (
+          {/* {currentUser && (
             <Alert variant="success">
               Logged in as <b>{currentUser.email}</b>
             </Alert>
+          )} */}
+          {error && (
+            <Alert variant="danger">
+              <strong>Failed Account Creation:</strong> {error}
+            </Alert>
           )}
-          {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
             <Form.Group id="email">
               <Form.Label>Email</Form.Label>
@@ -83,7 +92,7 @@ const Signup = () => {
         </Card.Body>
       </Card>
       <div className="w-100 text-center mt-2">
-        Already have an account? Log In
+        Already have an account? <Link to="/signin">Sign In</Link>
       </div>
     </>
   );
